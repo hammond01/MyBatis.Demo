@@ -1,0 +1,13 @@
+<mapper namespace="IUserMapper">
+  <select id="GetAll">
+    SELECT Id, UserName, Email FROM Users
+  </select>
+
+  <select id="GetById" parameterType="int" resultType="UserDto">
+    SELECT Id, UserName, Email FROM Users WHERE Id = {id}
+  </select>
+
+  <insert id="InsertUser" parameterType="User">
+    INSERT INTO Users (UserName, Email) VALUES (@UserName, @Email)
+  </insert>
+</mapper>
