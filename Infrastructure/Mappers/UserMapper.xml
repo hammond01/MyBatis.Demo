@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mapper namespace="IUserMapper">
+
+  <!-- Result Map for User entity -->
+  <resultMap id="User" type="User">
+    <id column="Id" property="Id" />
+    <result column="UserName" property="UserName" />
+    <result column="Email" property="Email" />
+  </resultMap>
+
+  <!-- Select All Users -->
+  <select id="GetAll" resultMap="User">
+    SELECT Id, UserName, Email FROM Users
+  </select>
+
+  <!-- Select User by Id -->
+  <select id="GetById" parameterType="int" resultMap="User">
+    SELECT Id, UserName, Email FROM Users WHERE Id = @Id
+  </select>
+
+  <!-- Insert User -->
+  <insert id="InsertUser" parameterType="User">
+    INSERT INTO Users (UserName, Email) VALUES (@UserName, @Email)
+  </insert>
+
+  <!-- Update User -->
+  <update id="UpdateUser">
+    UPDATE Users SET UserName = @userName, Email = @email WHERE Id = @id
+  </update>
+
+  <!-- Delete User -->
+  <delete id="DeleteUser" parameterType="int">
+    DELETE FROM Users WHERE Id = @Id
+  </delete>
+
+  <!-- Select Users by UserName with dynamic SQL -->
+  <select id="GetByUserName" parameterType="string" resultMap="User">
+    SELECT Id, UserName, Email FROM Users WHERE UserName LIKE CONCAT('%', @value, '%')
+  </select>
+
+</mapper>
