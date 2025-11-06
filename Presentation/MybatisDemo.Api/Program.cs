@@ -14,6 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+
+SqlSessionConfiguration.EnableSqlLogging = true;
+SqlSessionConfiguration.EnableParameterLogging = true;
 // Configure MyBatis
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Data Source=.;Initial Catalog=MybatisDemo;User ID=sa;Password=123456;TrustServerCertificate=True;";
@@ -22,10 +25,12 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 MapperAutoLoader.AutoLoadFromAssemblies(Assembly.Load("Infrastructure"));
 
 // Register services
-builder.Services.AddScoped(sp => new SqlSession(connectionString));
+builder.Services.AddScoped(_ => new SqlSession(connectionString));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 
