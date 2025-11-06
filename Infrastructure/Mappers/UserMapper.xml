@@ -9,12 +9,12 @@
   </resultMap>
 
   <!-- Select All Users -->
-  <select id="GetAll" resultMap="User">
+  <select id="GetAll" resultMap="User" returnSingle="false">
     SELECT Id, UserName, Email FROM Users
   </select>
 
   <!-- Select User by Id -->
-  <select id="GetById" parameterType="int" resultMap="User">
+  <select id="GetById" parameterType="int" resultMap="User" returnSingle="true">
     SELECT Id, UserName, Email FROM Users WHERE Id = @Id
   </select>
 
@@ -34,7 +34,7 @@
   </delete>
 
   <!-- Select Users by UserName with dynamic SQL -->
-  <select id="GetByUserName" parameterType="string" resultMap="User">
+  <select id="GetByUserName" parameterType="string" resultMap="User" returnSingle="false">
     SELECT Id, UserName, Email FROM Users WHERE UserName LIKE CONCAT('%', @value, '%')
   </select>
 
