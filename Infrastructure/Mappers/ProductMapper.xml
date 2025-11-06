@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mapper namespace="IProductMapper">
+
+  <!-- Result Map for Product entity -->
+  <resultMap id="Product" type="Product">
+    <id column="Id" property="Id" />
+    <result column="Name" property="Name" />
+    <result column="Description" property="Description" />
+    <result column="Price" property="Price" />
+    <result column="Category" property="Category" />
+    <result column="Stock" property="Stock" />
+    <result column="IsActive" property="IsActive" />
+    <result column="CreatedDate" property="CreatedDate" />
+  </resultMap>
+
+  <!-- Select All Products -->
+  <select id="GetAll" resultMap="Product" returnSingle="false">
+    SELECT Id, Name, Description, Price, Category, Stock, IsActive, CreatedDate
+    FROM Products
+    ORDER BY Name
+  </select>
+
+  <!-- Select Product by Id -->
+  <select id="GetById" parameterType="int" resultMap="Product" returnSingle="true">
+    SELECT Id, Name, Description, Price, Category, Stock, IsActive, CreatedDate
+    FROM Products
+    WHERE Id = @id
+  </select>
+
+  <!-- Dynamic SQL: Search Products with multiple optional conditions -->
+  <select id="SearchProducts" resultMap="Product" returnSingle="false">
+    SELECT Id, Name, Description, Price, Category, Stock, IsActive, CreatedDate
+    FROM Products
+    <where>
+      <if test="name != null">
+        Name LIKE '%' + @name + '%'
+      </if>
+      <if test="category != null">
+        AND Category = @category
+      </if>
+      <if test="minPrice != null">
+        AND Price >= @minPrice
+      </if>
+      <if test="maxPrice != null">
+        AND Price &lt;= @maxPrice
+      </if>
+      <if test="isActive != null">
+        AND IsActive = @isActive
+      </if>
+      <if test="minStock != null">
+        AND Stock >= @minStock
+      </if>
+    </where>
+    ORDER BY Name
+  </select>
+
+  <!-- Dynamic SQL: Find by Categories using foreach -->
+  <select id="FindByCategories" resultMap="Product" returnSingle="false">
+    SELECT Id, Name, Description, Price, Category, Stock, IsActive, CreatedDate
+    FROM Products
+    WHERE Category IN
+    <foreach collection="categories" item="category" open="(" separator="," close=")">
+      @category
+    </foreach>
+    ORDER BY Category, Name
+  </select>
+
+  <!-- Dynamic SQL: Find by Ids using foreach -->
+  <select id="FindByIds" resultMap="Product" returnSingle="false">
+    SELECT Id, Name, Description, Price, Category, Stock, IsActive, CreatedDate
+    FROM Products
+    WHERE Id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">
+      @id
+    </foreach>
+    ORDER BY Id
+  </select>
+
+  <!-- Dynamic SQL: Search by Type using choose/when/otherwise -->
+  <select id="SearchByType" resultMap="Product" returnSingle="false">
+    SELECT Id, Name, Description, Price, Category, Stock, IsActive, CreatedDate
+    FROM Products
+    <where>
+      <choose>
+        <when test="searchType == 'name'">
+          Name LIKE '%' + @searchValue + '%'
+        </when>
+        <when test="searchType == 'category'">
+          Category = @searchValue
+        </when>
+        <when test="searchType == 'description'">
+          Description LIKE '%' + @searchValue + '%'
+        </when>
+        <otherwise>
+          Name LIKE '%' + @searchValue + '%' OR Description LIKE '%' + @searchValue + '%'
+        </otherwise>
+      </choose>
+    </where>
+    ORDER BY Name
+  </select>
+
+  <!-- Dynamic SQL: Complex search with nested conditions -->
+  <select id="ComplexSearch" resultMap="Product" returnSingle="false">
+    SELECT Id, Name, Description, Price, Category, Stock, IsActive, CreatedDate
+    FROM Products
+    <where>
+      <if test="name != null">
+        Name LIKE '%' + @name + '%'
+      </if>
+      <if test="categories != null">
+        AND Category IN
+        <foreach collection="categories" item="category" open="(" separator="," close=")">
+          @category
+        </foreach>
+      </if>
+      <if test="priceRange != null">
+        <choose>
+          <when test="priceRange == 'low'">
+            AND Price &lt; 50
+          </when>
+          <when test="priceRange == 'medium'">
+            AND Price BETWEEN 50 AND 200
+          </when>
+          <when test="priceRange == 'high'">
+            AND Price > 200
+          </when>
+        </choose>
+      </if>
+      <if test="inStock != null and inStock == true">
+        AND Stock > 0
+      </if>
+      <if test="isActive != null">
+        AND IsActive = @isActive
+      </if>
+    </where>
+    <choose>
+      <when test="orderBy == 'price'">
+        ORDER BY Price ASC
+      </when>
+      <when test="orderBy == 'stock'">
+        ORDER BY Stock DESC
+      </when>
+      <otherwise>
+        ORDER BY CreatedDate DESC
+      </otherwise>
+    </choose>
+  </select>
+
+  <!-- Insert Product -->
+  <insert id="InsertProduct" parameterType="Product">
+    INSERT INTO Products (Name, Description, Price, Category, Stock, IsActive, CreatedDate)
+    VALUES (@Name, @Description, @Price, @Category, @Stock, @IsActive, GETDATE())
+  </insert>
+
+  <!-- Update Product with dynamic SET using <set> tag -->
+  <update id="UpdateProduct">
+    UPDATE Products
+    <set>
+      <if test="Name != null">
+        Name = @Name,
+      </if>
+      <if test="Description != null">
+        Description = @Description,
+      </if>
+      <if test="Price != null">
+        Price = @Price,
+      </if>
+      <if test="Category != null">
+        Category = @Category,
+      </if>
+      <if test="Stock != null">
+        Stock = @Stock,
+      </if>
+      <if test="IsActive != null">
+        IsActive = @IsActive,
+      </if>
+    </set>
+    WHERE Id = @Id
+  </update>
+
+  <!-- Delete Product -->
+  <delete id="DeleteProduct" parameterType="int">
+    DELETE FROM Products WHERE Id = @id
+  </delete>
+
+  <!-- Count products with dynamic conditions -->
+  <select id="CountProducts" resultType="int" returnSingle="true">
+    SELECT COUNT(*) FROM Products
+    <where>
+      <if test="category != null">
+        Category = @category
+      </if>
+      <if test="isActive != null">
+        AND IsActive = @isActive
+      </if>
+    </where>
+  </select>
+
+</mapper>

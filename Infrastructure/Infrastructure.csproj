@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Mappers\UserMapper.xml" />
+    <EmbeddedResource Include="Mappers\ProductMapper.xml" />
   </ItemGroup>
 
 </Project>
